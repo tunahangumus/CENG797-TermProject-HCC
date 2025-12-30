@@ -1,5 +1,5 @@
 [General]
-last-configname=Scalability_Analysis
+last-configname=Scalability_50Nodes
 last-runnumber=0
 
 [RunModeProfiles]
@@ -12,4 +12,4 @@ run-max-animation-speed=nan
 run-max-playback-speed=100
 run-min-animation-speed=10
 run-min-playback-speed=0.01
-run-playback-speed=3.630780547701014
+run-playback-speed=100

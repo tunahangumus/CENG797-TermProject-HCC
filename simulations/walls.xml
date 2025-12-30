@@ -1,0 +1,4 @@
+<environment>
+    <object position="min 400 0 0" orientation="0 0 0" shape="cuboid 10 1000 10" material="concrete" />
+    <object position="min 600 0 0" orientation="0 0 0" shape="cuboid 10 1000 10" material="brick" />
+</environment>

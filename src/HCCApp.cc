@@ -28,7 +28,6 @@ void HCCApp::initialize(int stage)
         beaconInterval = par("beaconInterval");
         neighborValidityInterval = par("neighborValidityInterval");
 
-        // Parametreden hedef adresi çözümle
         const char *destAddrStr = par("destAddress");
         if (destAddrStr != nullptr && *destAddrStr != '\0') {
              destAddress = L3AddressResolver().resolve(destAddrStr);
@@ -37,21 +36,23 @@ void HCCApp::initialize(int stage)
         clusterRoleSignal = registerSignal("clusterRole");
         clusterSizeSignal = registerSignal("clusterSize");
         nodeDegreeSignal = registerSignal("nodeDegree");
+        chLifetimeSignal = registerSignal("chLifetime");
+        roleChangesSignal = registerSignal("roleChanges");
+        controlOverheadSignal = registerSignal("controlOverhead");
+
+        timeBecameCH = SIMTIME_ZERO;
 
         beaconTimer = new cMessage("sendBeacon");
         myId = getParentModule()->getId();
 
-        // Soketin çıkış kapısını burada ayarlamak güvenlidir
         socket.setOutputGate(gate("socketOut"));
+
+
     }
-    // NOT: INITSTAGE_APPLICATION_LAYER kısmındaki başlatma kodlarını sildik
-    // Çünkü bu işi handleStartOperation yapacak.
 }
 
 void HCCApp::handleStartOperation(LifecycleOperation *operation)
 {
-    // 1. Soket İşlemleri (Modül her başladığında veya resetlendiğinde çalışmalı)
-    // Sadece soket kapalıysa bağla
     if (!socket.isOpen()) {
         socket.bind(localPort);
         socket.setBroadcast(true);
@@ -67,7 +68,6 @@ void HCCApp::handleStartOperation(LifecycleOperation *operation)
         socket.setCallback(this);
     }
 
-    // 2. Zamanlayıcıyı Başlat (Çakışmayı önleyen asıl düzeltme burada)
     if (!beaconTimer->isScheduled()) {
         scheduleAt(simTime() + uniform(0, 0.1), beaconTimer);
     }
@@ -77,9 +77,8 @@ void HCCApp::handleStartOperation(LifecycleOperation *operation)
 
 void HCCApp::handleStopOperation(LifecycleOperation *operation)
 {
-    // Modül durduğunda veya çöktüğünde temizlik yap
     cancelEvent(beaconTimer);
-    socket.close(); // Soketi kapatıyoruz, handleStart tekrar açacak
+    socket.close();
 }
 
 void HCCApp::handleCrashOperation(LifecycleOperation *operation)
@@ -94,7 +93,6 @@ void HCCApp::handleMessageWhenUp(cMessage *msg)
 {
     if (msg == beaconTimer) {
         sendBeacon();
-        // Bir sonraki mesajı planla
         scheduleAt(simTime() + beaconInterval, beaconTimer);
     }
     else {
@@ -107,6 +105,7 @@ void HCCApp::sendBeacon()
     cleanUpNeighbors();
     runHCCAlgorithm();
 
+    emit(controlOverheadSignal, 1);
     const char *payloadName = "HCCBeacon";
     Packet *packet = new Packet(payloadName);
 
@@ -179,12 +178,26 @@ void HCCApp::runHCCAlgorithm()
     int newRole = (bestNodeId == myId) ? CLUSTER_HEAD : CLUSTER_MEMBER;
     int newCH = bestNodeId;
 
-    if (newRole != myRole || newCH != myClusterHeadId) {
+    if (newRole != myRole) {
+        emit(roleChangesSignal, 1);
+
+        if (myRole == CLUSTER_HEAD && newRole != CLUSTER_HEAD) {
+            simtime_t duration = simTime() - timeBecameCH;
+            emit(chLifetimeSignal, duration);
+        }
+
+        if (newRole == CLUSTER_HEAD) {
+            timeBecameCH = simTime();
+        }
+
         myRole = newRole;
         myClusterHeadId = newCH;
         emit(clusterRoleSignal, myRole);
         updateVisuals();
     }
+    else if (newCH != myClusterHeadId) {
+            myClusterHeadId = newCH;
+        }
 }
 
 void HCCApp::updateVisuals()
