@@ -15,22 +15,24 @@ class HCCApp : public ApplicationBase, public UdpSocket::ICallback
 {
   protected:
     struct NeighborInfo {
-        int id;
-        int degree;
-        int role;
-        int clusterHeadId;
-        simtime_t lastSeen;
-    };
+            int id;
+            int degree;
+            int role;
+            int clusterHeadId;
+            simtime_t lastSeen;
+        };
 
     int localPort = -1;
     int destPort = -1;
     L3Address destAddress;
     simtime_t beaconInterval;
     simtime_t neighborValidityInterval;
+    std::map<int, int> neighborClusterTable;
 
     simsignal_t chLifetimeSignal;
     simsignal_t roleChangesSignal;
     simsignal_t controlOverheadSignal;
+    simsignal_t gatewayBridgingSignal;
 
     simtime_t timeBecameCH;
 

@@ -29,7 +29,9 @@ simple HCCApp like IApp
         @statistic[chLifetime](title="Cluster Head Lifetime"; source="chLifetime"; record=vector,mean,max);
 
         @statistic[controlOverhead](title="Control Overhead (Packets)"; source="controlOverhead"; record=count,sum);
-
+			
+		@signal[gatewayBridging](type="long");
+		@statistic[gatewayBridging](title="Gateway Bridging Factor"; source="gatewayBridging"; record=vector,mean,max);
     gates:
         input socketIn @labels(UdpControlInfo/up);
         output socketOut @labels(UdpControlInfo/down);

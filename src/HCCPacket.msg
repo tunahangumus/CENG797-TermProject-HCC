@@ -8,6 +8,7 @@ enum HCCRole {
     UNDECIDED = 0;
     CLUSTER_HEAD = 1;
     CLUSTER_MEMBER = 2;
+    GATEWAY = 3; // <--- Add this
 }
 
 // The Beacon Message extending INET's FieldsChunk (standard for INET 4.5)

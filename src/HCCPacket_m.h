@@ -39,20 +39,22 @@ namespace inet {
  *     UNDECIDED = 0;
  *     CLUSTER_HEAD = 1;
  *     CLUSTER_MEMBER = 2;
+ *     GATEWAY = 3; // <--- Add this
  * }
  * </pre>
  */
 enum HCCRole {
     UNDECIDED = 0,
     CLUSTER_HEAD = 1,
-    CLUSTER_MEMBER = 2
+    CLUSTER_MEMBER = 2,
+    GATEWAY = 3
 };
 
 inline void doParsimPacking(omnetpp::cCommBuffer *b, const HCCRole& e) { b->pack(static_cast<int>(e)); }
 inline void doParsimUnpacking(omnetpp::cCommBuffer *b, HCCRole& e) { int n; b->unpack(n); e = static_cast<HCCRole>(n); }
 
 /**
- * Class generated from <tt>HCCPacket.msg:14</tt> by opp_msgtool.
+ * Class generated from <tt>HCCPacket.msg:15</tt> by opp_msgtool.
  * <pre>
  * // The Beacon Message extending INET's FieldsChunk (standard for INET 4.5)
  * class HCCPacket extends FieldsChunk

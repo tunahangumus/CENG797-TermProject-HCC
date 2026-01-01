@@ -152,7 +152,7 @@ void doParsimUnpacking(omnetpp::cCommBuffer *, T& t)
 
 namespace inet {
 
-Register_Enum(inet::HCCRole, (inet::HCCRole::UNDECIDED, inet::HCCRole::CLUSTER_HEAD, inet::HCCRole::CLUSTER_MEMBER));
+Register_Enum(inet::HCCRole, (inet::HCCRole::UNDECIDED, inet::HCCRole::CLUSTER_HEAD, inet::HCCRole::CLUSTER_MEMBER, inet::HCCRole::GATEWAY));
 
 Register_Class(HCCPacket)
 
